@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+<input type="button" name="" onclick="websocket.inTopic('cctv1');">
+</body>
+</html>
+<script type="text/javascript">
+
+
+var websocket = {
+    ws:null,
+    appId:false,
+    userId:false,
+    isConnected:false,
+  init:function(appId,userId){
+    this.ws          = new WebSocket("ws://112.126.82.73:9457/connection");
+    this.appId       = appId;
+    this.userId      = userId;
+    this.isConnected = false;
+
+    this.ws.onopen = function() {
+      // 连接通知服务器,报告自己的id
+      // var clientId = "id"+Math.round(Math.random()*100000000);
+      // this.ws.send('reg:'+clientId);
+      this.ws.send('reg:'+this.appId+":"+this.userId);
+      this.isConnected = true;
+      console.log('web_socket open')
+    }.bind(this);
+
+    this.ws.onmessage = function (evt) {
+        this.isConnected = true;
+        console.log(evt.data)
+       // app.newMessageApp = evt.data
+       // if(evt.data == app.currentApp){
+       //   app.loadEventList(app.currentApp)
+
+       // }else{
+       //  app.newMessageApp
+       // }
+    }.bind(this);
+    this.ws.onclose = function(){
+      console.log('connect closed reconnect...')
+      websocket.init(this.appId,this.userId)
+    }.bind(this)
+  },
+  inTopic:function(topic){
+    console.log('call inTopic')
+    this.ws.send('in:'+this.appId+":"+this.userId+":"+topic);
+  }
+}
+
+var clientId = "id"+Math.round(Math.random()*100000000);
+websocket.init('test',clientId)
+
+
+</script>
